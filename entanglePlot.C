@@ -1,6 +1,5 @@
 #include "GetEnhancement.C"
 
-
 Double_t cos2phi(Double_t* x, Double_t* par)
 {
 	return par[0]*TMath::Cos(2*x[0]*TMath::DegToRad())+par[1];
@@ -145,6 +144,9 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	cztEntNorm_h->SetTitle("");
 	cztEntNorm_h->SetMarkerStyle(47);
 	cztEntNorm_h->SetMarkerColor(4);
+	cztEntNorm_h->SetLineColor(4);
+	cztEntNorm_h->SetFillColor(4);
+	
 	cztEntNorm_h->GetXaxis()->SetTitle("#Delta#phi (degrees)");
 	cztEntNorm_h->GetYaxis()->SetTitle("Normalised Scattering Probability");
 	
@@ -158,6 +160,8 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	cztEntNorm_h->Draw("e1");
 	cztUnentNorm_h->SetMarkerStyle(23);
 	cztUnentNorm_h->SetMarkerColor(2);
+	cztUnentNorm_h->SetLineColor(2);
+	cztUnentNorm_h->SetFillColor(2);
 	cztUnentNorm_h->Draw("e1 same");
 	cos2phi_ent->Draw("same");
 	cos2phi_pol->Draw("same");
@@ -204,6 +208,31 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 		c_t[i]=(cos2phi_ent->Integral(i*20,(i+1)*20))/20;
 		cout << i*20+10 << "	" << c_t[i] << endl;
 	}
+	
+	TCanvas* c7=new TCanvas("c7","CZT Block Simulation, error bands");
+	c7->cd();
+	
+	TH1F* cztUnentNorm2_h=(TH1F*)cztUnent_h->Clone("cztUnentNorm2_h");
+	cztUnentNorm2_h->Rebin(4);
+	
+//	cztEntNorm_h->DrawCopy("e4");
+	cztUnentNorm2_h->SetFillColor(4);
+	cztUnentNorm2_h->DrawCopy("e4");
+//	cos2phi_ent->DrawCopy("same");
+//	cos2phi_pol->DrawCopy("same");
+	TLegend* leg7 = new TLegend(0.6,0.8,0.95,0.95);
+//	leg7->AddEntry(cztEntNorm_h,cztEnt_h->GetTitle());
+//	leg7->AddEntry(cztEntNorm_h,Form("QE-G4 Simulation (enh.=%.3f)",enh_cztEnt));
+//	leg7->AddEntry(cztUnentNorm_h,cztUnent_h->GetTitle());
+//	leg7->AddEntry(cztUnentNorm_h,Form("G4 Simulation (enh.=%.3f)",enh_cztUnent));
+//	leg7->AddEntry(cos2phi_ent,Form("Theoretical (Entangled) (enh.=%.3f)",enh_ent));
+//	leg7->AddEntry(cos2phi_pol,Form("Theoretical (Unentangled) (enh.=%.3f)",enh_pol));
+	leg7->AddEntry(cztEntNorm_h,"QE-G4 Simulation","ep");
+	leg7->AddEntry(cztUnentNorm_h,"G4 Simulation","ep");
+	leg7->AddEntry(cos2phi_ent,"Theoretical (Entangled)","l");
+	leg7->AddEntry(cos2phi_pol,"Theoretical (Unentangled)","l");
+//	leg7->Draw();
+	
 	
 // Integrate enhancement function over various ranges of theta
 	cout << endl << "d_theta	min.	max.	Enh." << endl;
