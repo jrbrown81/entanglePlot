@@ -20,7 +20,7 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	TF1* entScatProbPerp_f = new TF1("entScatProbPerp_f","((gamma_f-2*TMath::Sin(x*TMath::DegToRad())^2)^2+gamma_f^2)",0,180);
 	TF1* entangled_f = new TF1("entangled_f","entScatProbPerp_f/entScatProbPara_f",0,180);
 
-	TCanvas* c1=new TCanvas("c1","Unentangled");
+	TCanvas* c1=new TCanvas("c1","Independent");
 	c1->Divide(2,2);
 	c1->cd(1);
 	gamma_f->SetTitle("gamma");
@@ -52,14 +52,17 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	TCanvas* c3=new TCanvas("c3","Comparison");
 	entangled_f->SetLineColor(4);
 //	entangled_f->SetTitle("Entangled");
-	entangled_f->GetHistogram()->SetTitle("Enhancement");
+	entangled_f->GetHistogram()->SetTitle("");
 	entangled_f->GetXaxis()->SetTitle("#theta");
+	entangled_f->GetYaxis()->SetTitle("Enhancement factor");
+	entangled_f->GetXaxis()->SetTitleSize(0.04);
+	entangled_f->GetYaxis()->SetTitleSize(0.04);
 	entangled_f->Draw();
-//	polarised_f->SetTitle("Unentangled");
+//	polarised_f->SetTitle("Independent");
 	polarised_f->DrawCopy("same");
-	TLegend* leg3 = new TLegend(0.75,0.75,0.9,0.9);
+	TLegend* leg3 = new TLegend(0.65,0.7,0.9,0.9);
 	leg3->AddEntry(entangled_f,"Entangled");
-	leg3->AddEntry(polarised_f,"Unentangled");
+	leg3->AddEntry(polarised_f,"Independent");
 	leg3->Draw();
 //	c3->BuildLegend(0.75,0.75,0.9,0.9);
 	
@@ -99,7 +102,7 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 //	c4->BuildLegend(0.75,0.75,0.9,0.9);
 	TLegend* leg4 = new TLegend(0.6,0.75,0.9,0.9);
 	leg4->AddEntry(cos2phi_ent,Form("Entangled (enh.=%f)",enh_ent));
-	leg4->AddEntry(cos2phi_pol,Form("Unentangled (enh.=%f)",enh_pol));
+	leg4->AddEntry(cos2phi_pol,Form("Independent (enh.=%f)",enh_pol));
 	leg4->Draw();
 
 	TFile *file = new TFile("entangledCZT_hist.root");
@@ -173,11 +176,11 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 //	leg5->AddEntry(cztUnentNorm_h,cztUnent_h->GetTitle());
 //	leg5->AddEntry(cztUnentNorm_h,Form("G4 Simulation (enh.=%.3f)",enh_cztUnent));
 //	leg5->AddEntry(cos2phi_ent,Form("Theoretical (Entangled) (enh.=%.3f)",enh_ent));
-//	leg5->AddEntry(cos2phi_pol,Form("Theoretical (Unentangled) (enh.=%.3f)",enh_pol));
+//	leg5->AddEntry(cos2phi_pol,Form("Theoretical (Independent) (enh.=%.3f)",enh_pol));
 	leg5->AddEntry(cztEntNorm_h,"QE-G4 Simulation","ep");
 	leg5->AddEntry(cztUnentNorm_h,"G4 Simulation","ep");
 	leg5->AddEntry(cos2phi_ent,"Theoretical (Entangled)","l");
-	leg5->AddEntry(cos2phi_pol,"Theoretical (Unentangled)","l");
+	leg5->AddEntry(cos2phi_pol,"Theoretical (Independent)","l");
 //	leg5->Draw();
 	
 //	c5->cd(4);
@@ -226,11 +229,11 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 //	leg7->AddEntry(cztUnentNorm_h,cztUnent_h->GetTitle());
 //	leg7->AddEntry(cztUnentNorm_h,Form("G4 Simulation (enh.=%.3f)",enh_cztUnent));
 //	leg7->AddEntry(cos2phi_ent,Form("Theoretical (Entangled) (enh.=%.3f)",enh_ent));
-//	leg7->AddEntry(cos2phi_pol,Form("Theoretical (Unentangled) (enh.=%.3f)",enh_pol));
+//	leg7->AddEntry(cos2phi_pol,Form("Theoretical (Independent) (enh.=%.3f)",enh_pol));
 	leg7->AddEntry(cztEntNorm_h,"QE-G4 Simulation","ep");
 	leg7->AddEntry(cztUnentNorm_h,"G4 Simulation","ep");
 	leg7->AddEntry(cos2phi_ent,"Theoretical (Entangled)","l");
-	leg7->AddEntry(cos2phi_pol,"Theoretical (Unentangled)","l");
+	leg7->AddEntry(cos2phi_pol,"Theoretical (Independent)","l");
 //	leg7->Draw();
 	
 	
