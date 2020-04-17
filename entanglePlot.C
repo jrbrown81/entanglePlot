@@ -5,11 +5,22 @@ Double_t cos2phi(Double_t* x, Double_t* par)
 	return par[0]*TMath::Cos(2*x[0]*TMath::DegToRad())+par[1];
 }
 
+//Double_t g(Double_t* x, Double_t* par)
+//{
+//	return 2-TMath::Cos(x*TMath::DegToRad())+1/(2-TMath::Cos(x*TMath::DegToRad()));
+//}
+
 void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 {
 	gStyle->SetOptStat(0);
 //	gROOT->ProcessLine(".L ~/work/root_macros/root_macros/GetEnhancement.C");
 
+// Pryce & Ward
+	TF2* Ka_f=new TF2("Ka_f","(pow((1-TMath::Cos(x)),3)+2)*(pow((1-TMath::Cos(y)),3)+2)/(pow(2-TMath::Cos(x),3)*pow(2-TMath::Cos(y),3))",0,TMath::Pi(),0,TMath::Pi());
+	TF2* Kb_f=new TF2("Kb_f","pow(TMath::Sin(x),2) * pow(TMath::Sin(y),2) / (pow(2-TMath::Cos(x),2) * pow(2-TMath::Cos(y),2))",0,TMath::Pi(),0,TMath::Pi());
+	TF2* pryce_f = new TF2("pryce_f","(Ka_f+Kb_f)/(Ka_f-Kb_f)",0,TMath::Pi(),0,TMath::Pi());
+
+// Bohm & Aharonov
 	TF1* gamma_f=new TF1("gamma_f","2-TMath::Cos(x*TMath::DegToRad())+1/(2-TMath::Cos(x*TMath::DegToRad()))",0,180);
 	TF1* polScatProbPara_f = new TF1("polScatProbPara_f","(2*(gamma_f)^2-4*gamma_f*(TMath::Sin(x*TMath::DegToRad()))^2+(TMath::Sin(x*TMath::DegToRad()))^4)",0,180);
 	TF1* polScatProbPerp_f = new TF1("polScatProbPerp_f","(2*(gamma_f)^2-4*gamma_f*(TMath::Sin(x*TMath::DegToRad()))^2+3*(TMath::Sin(x*TMath::DegToRad()))^4)",0,180);
@@ -19,6 +30,20 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	TF1* entScatProbPara_f = new TF1("entScatProbPara_f","(2*gamma_f*(gamma_f-2*TMath::Sin(x*TMath::DegToRad())^2))",0,180);
 	TF1* entScatProbPerp_f = new TF1("entScatProbPerp_f","((gamma_f-2*TMath::Sin(x*TMath::DegToRad())^2)^2+gamma_f^2)",0,180);
 	TF1* entangled_f = new TF1("entangled_f","entScatProbPerp_f/entScatProbPara_f",0,180);
+
+// Snyder, Pasternack and Hornbostel
+//	TF1* g1=new TF1("g1","1/(2-TMath::Cos(x*TMath::DegToRad())) + (2-TMath::Cos(x*TMath::DegToRad()))",0,180);
+//	TF1* g2=new TF1("g2","1/(2-TMath::Cos(y*TMath::DegToRad())) + (2-TMath::Cos(y*TMath::DegToRad()))",0,180);
+//	TF2* snyder_f=new TF2("snyder_h","(g1*g2 - g1*pow(TMath::Sin(y*TMath::DegToRad()),2) - g2*pow(TMath::Sin(x*TMath::DegToRad()),2) +  2*pow(TMath::Sin(x*TMath::DegToRad()),2)*pow(TMath::Sin(y*TMath::DegToRad()),2)) / (g1*g2  - g1*pow(TMath::Sin(y*TMath::DegToRad()),2) - g2*pow(TMath::Sin(x*TMath::DegToRad()),2))",0,180,0,180);
+////	TF2* snyder_f=new TF2("snyder_h","(g(x)*g(y) - g(x)*pow(TMath::Sin(y*TMath::DegToRad()),2) - g(y)*pow(TMath::Sin(x*TMath::DegToRad()),2) +  2*pow(TMath::Sin(x*TMath::DegToRad()),2)*pow(TMath::Sin(y*TMath::DegToRad()),2)) / (g(x)*g(y))  - g(x)*pow(TMath::Sin(y*TMath::DegToRad()),2) - g(y))*pow(TMath::Sin(x*TMath::DegToRad()),2))",0,180,0,180);
+
+//	TF2* snyder_f=new TF2("snyder_h",
+//	"(g(x)*g(y) - g(x)*pow(TMath::Sin(y*TMath::DegToRad()),2) - g(y)*pow(TMath::Sin(x*TMath::DegToRad()),2) +  2*pow(TMath::Sin(x*TMath::DegToRad()),2)*pow(TMath::Sin(y*TMath::DegToRad()),2)) / (g(x)*g(y)  - g(x)*pow(TMath::Sin(y*TMath::DegToRad()),2) - g(y)*pow(TMath::Sin(x*TMath::DegToRad()),2))"
+//	,0,180,0,180);
+	TF1* g=new TF1("g","2-TMath::Cos(x)+1/(2-TMath::Cos(x))",0,TMath::Pi());
+	TF2* snyder_f=new TF2("snyder_h",
+	"(g(x)*g(y) - g(x)*pow(TMath::Sin(y),2) - g(y)*pow(TMath::Sin(x),2) +  2*pow(TMath::Sin(x),2)*pow(TMath::Sin(y),2)) / (g(x)*g(y)  - g(x)*pow(TMath::Sin(y),2) - g(y)*pow(TMath::Sin(x),2))"
+	,0,TMath::Pi(),0,TMath::Pi());
 
 	TCanvas* c1=new TCanvas("c1","Independent");
 	c1->Divide(2,2);
@@ -129,8 +154,7 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	Double_t enh_cztEnt=GetEnhancement(cztEntNorm_h,"IL0Q");
 //	cztEntNorm_h->SetLineColor(1);
 	cztEntNorm_h->SetStats(0);
-	
-	
+		
 	norm=cztUnent_h->Integral(-180,180);
 	nBins=cztUnent_h->GetNbinsX();
 	norm=norm/nBins;
@@ -242,14 +266,15 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	Int_t n=17;
 	Double_t dTheta[n];
 	Double_t enh[n];
+	Double_t thetaLow, thetaHi;
 	dTheta[0]=0;
 	enh[0]=entangled_f->Eval(82);
 	for(int i=1;i<n;i++) {
-		thetaMin=82-5*i;
-		thetaMax=82+5*i;
-		dTheta[i]=thetaMax-thetaMin;
-		enh[i]=entangled_f->Integral(thetaMin,thetaMax)/dTheta[i];
-		cout << dTheta[i] << "	" << thetaMin << "	" << thetaMax << "	" << enh[i] << endl;
+		thetaLow=82-5*i;
+		thetaHi=82+5*i;
+		dTheta[i]=thetaHi-thetaLow;
+		enh[i]=entangled_f->Integral(thetaLow,thetaHi)/dTheta[i];
+		cout << dTheta[i] << "	" << thetaLow << "	" << thetaHi << "	" << enh[i] << endl;
 	}
 	TGraph* enhVsDtheta_gr=new TGraph(n,dTheta,enh);
 	enhVsDtheta_gr->SetTitle("Enhancement vs. #Delta#theta (symetric about 82#circ);#Delta#theta;Enhancement");
@@ -257,4 +282,32 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	TCanvas* enhVsDtheta_c=new TCanvas("enhVsDtheta_c","Enhancement vs. #Delta#theta");
 	enhVsDtheta_gr->Draw("ALP");
 	
+	TCanvas* indTheta_c=new TCanvas("indTheta_c","Enh. for independent theta 1 and 2");
+//	indTheta_c->Divide(2,1);
+	indTheta_c->cd(1);
+//	pryce_f->SetTitle("Enhancement (Pryce & Ward);theta1;theta2");
+	pryce_f->Draw("surf1");
+	
+	Float_t bestTheta = 81.660564;
+	
+	cout << "Maximum enhancement from Pryce & Ward = " << pryce_f->Eval(bestTheta/180*TMath::Pi(),bestTheta/180*TMath::Pi()) << " at theta1=theta2=" << bestTheta << endl;
+	cout << "Theta min = " << thetaMin*TMath::DegToRad() << ", Enh = " << pryce_f->Eval(thetaMin*TMath::DegToRad(),thetaMin*TMath::DegToRad()) << endl;
+	cout << "Theta max = " << thetaMax*TMath::DegToRad() << ", Enh = " << pryce_f->Eval(thetaMax*TMath::DegToRad(),thetaMin*TMath::DegToRad()) << endl;
+
+	Double_t enh_Pryce=(pryce_f->Integral(thetaMin*TMath::DegToRad(),thetaMax*TMath::DegToRad(),thetaMin*TMath::DegToRad(),thetaMax*TMath::DegToRad()))/pow(thetaMax*TMath::DegToRad()-thetaMin*TMath::DegToRad(),2);
+	cout << Form("Enh. from Pryce & Ward (with %.2f<theta<%.2f): %f",thetaMin,thetaMax,enh_Pryce) << endl;
+
+	TCanvas* CZT_block_comp_c=new TCanvas("CZT_block_comp_c","CZT Block Simulation (Pryce & Ward)");
+	CZT_block_comp_c->cd();
+	cztEntNorm_h->Draw("e1");
+	cztUnentNorm_h->Draw("e1 same");
+
+	TF1* cos2phi_pryce=new TF1(Form("cos(2#phi) distributions for %.1f#circ<#theta<%.1f#circ",thetaMin,thetaMax),cos2phi,-180,180,2);
+	amp=(1-enh_Pryce)/(1+enh_Pryce);
+	off=1;
+	cos2phi_pryce->SetParameter(0,amp);
+	cos2phi_pryce->SetParameter(1,off);
+	cos2phi_pryce->SetLineColor(4);
+	cos2phi_pryce->GetXaxis()->SetTitle("#phi (degrees)");
+	cos2phi_pryce->Draw("same");
 }
