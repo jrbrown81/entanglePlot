@@ -1,4 +1,7 @@
 #include "GetEnhancement.C"
+#include "TMath.h"
+
+using namespace TMath;
 
 Double_t cos2phi(Double_t* x, Double_t* par)
 {
@@ -12,13 +15,28 @@ Double_t cos2phi(Double_t* x, Double_t* par)
 
 void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 {
-	gStyle->SetOptStat(0);
+//	gStyle->SetOptStat(0);
 //	gROOT->ProcessLine(".L ~/work/root_macros/root_macros/GetEnhancement.C");
+
+// Caradonna et al
+	TF3* cara_f=new TF3("cara_f","1./(16*pow(-2+Cos(x),3)*pow(-2+Cos(y),3))*	(9+9*pow(Cos(y),2)-3*pow(Cos(y),3)-3*pow(Cos(x),2)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))+pow(Cos(x),3)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))-4*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(-9+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))+	Cos(x)*(-9-9*pow(Cos(y),2)+3*pow(Cos(y),3)+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(9-Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))))",0,Pi(),0,Pi(),-Pi(),Pi());
+////////////////////////////////////
 
 // Pryce & Ward
 	TF2* Ka_f=new TF2("Ka_f","(pow((1-TMath::Cos(x)),3)+2)*(pow((1-TMath::Cos(y)),3)+2)/(pow(2-TMath::Cos(x),3)*pow(2-TMath::Cos(y),3))",0,TMath::Pi(),0,TMath::Pi());
 	TF2* Kb_f=new TF2("Kb_f","pow(TMath::Sin(x),2) * pow(TMath::Sin(y),2) / (pow(2-TMath::Cos(x),2) * pow(2-TMath::Cos(y),2))",0,TMath::Pi(),0,TMath::Pi());
-	TF2* pryce_f = new TF2("pryce_f","(Ka_f+Kb_f)/(Ka_f-Kb_f)",0,TMath::Pi(),0,TMath::Pi());
+	TF2* enhVsTh12_PW_f = new TF2("enhVsTh12_PW_f","(Ka_f+Kb_f)/(Ka_f-Kb_f)",0,TMath::Pi(),0,TMath::Pi());
+	enhVsTh12_PW_f->GetXaxis()->SetTitle("#theta_{1}");
+	enhVsTh12_PW_f->GetYaxis()->SetTitle("#theta_{2}");
+	enhVsTh12_PW_f->SetTitle("Enhancement vs. #theta_{1} and #theta_{2} (Pryce & Ward)");
+
+	TF1* cos2Dphi_f=new TF1("cos2Dphi_f","TMath::Cos(2*x)",-TMath::Pi(),TMath::Pi());
+	
+// Pryce & Ward 3D
+	TF3* test_f = new TF3("test_f","1./16*(((pow((1-TMath::Cos(x)),3)+2)*(pow((1-TMath::Cos(y)),3)+2)/(pow(2-TMath::Cos(x),3)*pow(2-TMath::Cos(y),3)))-(pow(TMath::Sin(x),2) * pow(TMath::Sin(y),2) / (pow(2-TMath::Cos(x),2) * pow(2-TMath::Cos(y),2)))*TMath::Cos(2*z))",0,TMath::Pi(),0,TMath::Pi(),-TMath::Pi(),TMath::Pi());
+	test_f->GetXaxis()->SetTitle("#theta_{1}");
+	test_f->GetYaxis()->SetTitle("#theta_{2}");
+////////////////////////////////////
 
 // Bohm & Aharonov
 	TF1* gamma_f=new TF1("gamma_f","2-TMath::Cos(x*TMath::DegToRad())+1/(2-TMath::Cos(x*TMath::DegToRad()))",0,180);
@@ -30,20 +48,14 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	TF1* entScatProbPara_f = new TF1("entScatProbPara_f","(2*gamma_f*(gamma_f-2*TMath::Sin(x*TMath::DegToRad())^2))",0,180);
 	TF1* entScatProbPerp_f = new TF1("entScatProbPerp_f","((gamma_f-2*TMath::Sin(x*TMath::DegToRad())^2)^2+gamma_f^2)",0,180);
 	TF1* entangled_f = new TF1("entangled_f","entScatProbPerp_f/entScatProbPara_f",0,180);
+////////////////////////////////////
 
 // Snyder, Pasternack and Hornbostel
-//	TF1* g1=new TF1("g1","1/(2-TMath::Cos(x*TMath::DegToRad())) + (2-TMath::Cos(x*TMath::DegToRad()))",0,180);
-//	TF1* g2=new TF1("g2","1/(2-TMath::Cos(y*TMath::DegToRad())) + (2-TMath::Cos(y*TMath::DegToRad()))",0,180);
-//	TF2* snyder_f=new TF2("snyder_h","(g1*g2 - g1*pow(TMath::Sin(y*TMath::DegToRad()),2) - g2*pow(TMath::Sin(x*TMath::DegToRad()),2) +  2*pow(TMath::Sin(x*TMath::DegToRad()),2)*pow(TMath::Sin(y*TMath::DegToRad()),2)) / (g1*g2  - g1*pow(TMath::Sin(y*TMath::DegToRad()),2) - g2*pow(TMath::Sin(x*TMath::DegToRad()),2))",0,180,0,180);
-////	TF2* snyder_f=new TF2("snyder_h","(g(x)*g(y) - g(x)*pow(TMath::Sin(y*TMath::DegToRad()),2) - g(y)*pow(TMath::Sin(x*TMath::DegToRad()),2) +  2*pow(TMath::Sin(x*TMath::DegToRad()),2)*pow(TMath::Sin(y*TMath::DegToRad()),2)) / (g(x)*g(y))  - g(x)*pow(TMath::Sin(y*TMath::DegToRad()),2) - g(y))*pow(TMath::Sin(x*TMath::DegToRad()),2))",0,180,0,180);
-
-//	TF2* snyder_f=new TF2("snyder_h",
-//	"(g(x)*g(y) - g(x)*pow(TMath::Sin(y*TMath::DegToRad()),2) - g(y)*pow(TMath::Sin(x*TMath::DegToRad()),2) +  2*pow(TMath::Sin(x*TMath::DegToRad()),2)*pow(TMath::Sin(y*TMath::DegToRad()),2)) / (g(x)*g(y)  - g(x)*pow(TMath::Sin(y*TMath::DegToRad()),2) - g(y)*pow(TMath::Sin(x*TMath::DegToRad()),2))"
-//	,0,180,0,180);
 	TF1* g=new TF1("g","2-TMath::Cos(x)+1/(2-TMath::Cos(x))",0,TMath::Pi());
 	TF2* snyder_f=new TF2("snyder_h",
 	"(g(x)*g(y) - g(x)*pow(TMath::Sin(y),2) - g(y)*pow(TMath::Sin(x),2) +  2*pow(TMath::Sin(x),2)*pow(TMath::Sin(y),2)) / (g(x)*g(y)  - g(x)*pow(TMath::Sin(y),2) - g(y)*pow(TMath::Sin(x),2))"
 	,0,TMath::Pi(),0,TMath::Pi());
+////////////////////////////////////
 
 	TCanvas* c1=new TCanvas("c1","Independent");
 	c1->Divide(2,2);
@@ -286,16 +298,19 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	TCanvas* indTheta_c=new TCanvas("indTheta_c","Enh. for independent theta 1 and 2");
 //	indTheta_c->Divide(2,1);
 	indTheta_c->cd(1);
-//	pryce_f->SetTitle("Enhancement (Pryce & Ward);theta1;theta2");
-	pryce_f->Draw("surf1");
+//	enhVsTh12_PW_f->SetTitle("Enhancement (Pryce & Ward);theta1;theta2");
+	enhVsTh12_PW_f->Draw("surf1");
 	
 	Float_t bestTheta = 81.660564;
 	
-	cout << "Maximum enhancement from Pryce & Ward = " << pryce_f->Eval(bestTheta/180*TMath::Pi(),bestTheta/180*TMath::Pi()) << " at theta1=theta2=" << bestTheta << endl;
-	cout << "Theta min = " << thetaMin*TMath::DegToRad() << ", Enh = " << pryce_f->Eval(thetaMin*TMath::DegToRad(),thetaMin*TMath::DegToRad()) << endl;
-	cout << "Theta max = " << thetaMax*TMath::DegToRad() << ", Enh = " << pryce_f->Eval(thetaMax*TMath::DegToRad(),thetaMin*TMath::DegToRad()) << endl;
+	cout << "Maximum enhancement from Caradonna et al = " << test_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),90.*TMath::DegToRad())/test_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),0.*TMath::DegToRad()) << " at theta1=theta2=" << bestTheta << endl;
 
-	Double_t enh_Pryce=(pryce_f->Integral(thetaMin*TMath::DegToRad(),thetaMax*TMath::DegToRad(),thetaMin*TMath::DegToRad(),thetaMax*TMath::DegToRad()))/pow(thetaMax*TMath::DegToRad()-thetaMin*TMath::DegToRad(),2);
+	
+	cout << "Maximum enhancement from Pryce & Ward = " << enhVsTh12_PW_f->Eval(bestTheta/180*TMath::Pi(),bestTheta/180*TMath::Pi()) << " at theta1=theta2=" << bestTheta << endl;
+	cout << "Theta min = " << thetaMin*TMath::DegToRad() << ", Enh = " << enhVsTh12_PW_f->Eval(thetaMin*TMath::DegToRad(),thetaMin*TMath::DegToRad()) << endl;
+	cout << "Theta max = " << thetaMax*TMath::DegToRad() << ", Enh = " << enhVsTh12_PW_f->Eval(thetaMax*TMath::DegToRad(),thetaMin*TMath::DegToRad()) << endl;
+	
+	Double_t enh_Pryce=(enhVsTh12_PW_f->Integral(thetaMin*TMath::DegToRad(),thetaMax*TMath::DegToRad(),thetaMin*TMath::DegToRad(),thetaMax*TMath::DegToRad()))/pow(thetaMax*TMath::DegToRad()-thetaMin*TMath::DegToRad(),2);
 	cout << Form("Enh. from Pryce & Ward (with %.2f<theta<%.2f): %f",thetaMin,thetaMax,enh_Pryce) << endl;
 
 	TCanvas* CZT_block_comp_c=new TCanvas("CZT_block_comp_c","CZT Block Simulation (Pryce & Ward)");
@@ -311,4 +326,45 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	cos2phi_pryce->SetLineColor(4);
 	cos2phi_pryce->GetXaxis()->SetTitle("#phi (degrees)");
 	cos2phi_pryce->Draw("same");
+	
+	TCanvas* caraTest_c=new TCanvas("caraTest_c","Caradonna Plots");
+	caraTest_c->Divide(2,2);
+	
+	Float_t thetaTest=95;
+	
+	Int_t bins=18;
+	Float_t binWidth=360./bins;
+	
+	TH1F* pryceTest_h=new TH1F("pryceTest_h",Form("Pryce Ward #Delta#phi plot at %.2f",bestTheta),bins,-180,180);
+	TH1F* pryceTest2_h=new TH1F("pryceTest2_h",Form("Pryce Ward #Delta#phi plot at %.2f",thetaTest),bins,-180,180);
+//	TH1F* caraTest_h=new TH1F("caraTest_h",Form("Caradonna #Delta#phi plot at %.2f",bestTheta),bins,0,360);
+//	TH1F* caraTest2_h=new TH1F("caraTest2_h",Form("Caradonna #Delta#phi plot at %.2f",thetaTest),bins,0,360);
+	TH1F* caraTest_h=new TH1F("caraTest_h",Form("Caradonna #Delta#phi plot at %.2f",bestTheta),bins,-180,180);
+	TH1F* caraTest2_h=new TH1F("caraTest2_h",Form("Caradonna #Delta#phi plot at %.2f",thetaTest),bins,-180,180);
+	
+	TH3F* cara3D_h=new TH3F("cara3D_h","Caradonna 3D",180,0,180,180,0,180,180,-180,180);
+	for(int i=0; i<180; i++) {
+		pryceTest_h->SetBinContent(i+1,test_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),(i*2-180+binWidth/2)*TMath::DegToRad()));
+		pryceTest2_h->SetBinContent(i+1,test_f->Eval(thetaTest*TMath::DegToRad(),thetaTest*TMath::DegToRad(),(i*2-180+binWidth/2)*TMath::DegToRad()));
+//		caraTest_h->SetBinContent(i+1,cara_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),(i*2+binWidth/2)*TMath::DegToRad()));
+//		caraTest2_h->SetBinContent(i+1,cara_f->Eval(thetaTest*TMath::DegToRad(),thetaTest*TMath::DegToRad(),(i*2+binWidth/2)*TMath::DegToRad()));
+		caraTest_h->SetBinContent(i+1,cara_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),(i*2-180+binWidth/2)*TMath::DegToRad()));
+		caraTest2_h->SetBinContent(i+1,cara_f->Eval(thetaTest*TMath::DegToRad(),thetaTest*TMath::DegToRad(),(i*2-180+binWidth/2)*TMath::DegToRad()));
+		
+		for(int j=0;j<180;j++) for(int k=0;k<180;k++) cara3D_h->SetBinContent(i+1,j+1,k+1,cara_f->Eval((i*binWidth/2+binWidth/4)*TMath::DegToRad(),(j*binWidth/2+binWidth/4)*TMath::DegToRad(),(k*2-180+binWidth/2)*TMath::DegToRad()));
+		
+	}
+	caraTest_c->cd(1);
+//	caraTest_h->SetLineColor(2);
+//	caraTest_h->SetLineStyle(3);
+	caraTest_h->Draw("");
+	caraTest_c->cd(2);
+	pryceTest_h->Draw("");
+	caraTest_c->cd(3);
+	caraTest2_h->Draw("");
+	caraTest_c->cd(4);
+	pryceTest2_h->Draw("");
+	
+	TCanvas* cara3D_c=new TCanvas("cara3D","Caradonna 3D");
+	cara3D_h->Draw();
 }
