@@ -302,11 +302,7 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	enhVsTh12_PW_f->Draw("surf1");
 	
 	Float_t bestTheta = 81.660564;
-	
-	cout << "Maximum enhancement from Caradonna et al = " << test_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),90.*TMath::DegToRad())/test_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),0.*TMath::DegToRad()) << " at theta1=theta2=" << bestTheta << endl;
 
-	
-	cout << "Maximum enhancement from Pryce & Ward = " << enhVsTh12_PW_f->Eval(bestTheta/180*TMath::Pi(),bestTheta/180*TMath::Pi()) << " at theta1=theta2=" << bestTheta << endl;
 	cout << "Theta min = " << thetaMin*TMath::DegToRad() << ", Enh = " << enhVsTh12_PW_f->Eval(thetaMin*TMath::DegToRad(),thetaMin*TMath::DegToRad()) << endl;
 	cout << "Theta max = " << thetaMax*TMath::DegToRad() << ", Enh = " << enhVsTh12_PW_f->Eval(thetaMax*TMath::DegToRad(),thetaMin*TMath::DegToRad()) << endl;
 	
@@ -328,28 +324,46 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	cos2phi_pryce->Draw("same");
 	
 	TCanvas* caraTest_c=new TCanvas("caraTest_c","Caradonna Plots");
-	caraTest_c->Divide(2,2);
+	caraTest_c->Divide(2,3);
 	
 	Float_t thetaTest=95;
 	
-	Int_t bins=18;
+	Int_t bins=180;
 	Float_t binWidth=360./bins;
 	
 	TH1F* pryceTest_h=new TH1F("pryceTest_h",Form("Pryce Ward #Delta#phi plot at %.2f",bestTheta),bins,-180,180);
 	TH1F* pryceTest2_h=new TH1F("pryceTest2_h",Form("Pryce Ward #Delta#phi plot at %.2f",thetaTest),bins,-180,180);
+	TH1F* pryceTest3_h=new TH1F("pryceTest3_h","Pryce Ward enhancement plot",bins,0,180);
 //	TH1F* caraTest_h=new TH1F("caraTest_h",Form("Caradonna #Delta#phi plot at %.2f",bestTheta),bins,0,360);
 //	TH1F* caraTest2_h=new TH1F("caraTest2_h",Form("Caradonna #Delta#phi plot at %.2f",thetaTest),bins,0,360);
 	TH1F* caraTest_h=new TH1F("caraTest_h",Form("Caradonna #Delta#phi plot at %.2f",bestTheta),bins,-180,180);
 	TH1F* caraTest2_h=new TH1F("caraTest2_h",Form("Caradonna #Delta#phi plot at %.2f",thetaTest),bins,-180,180);
+	TH1F* caraTest3_h=new TH1F("caraTest3_h","Caradonna enhancement plot",bins,0,180);
+	
+	TH1F* caraTests_h[8];
+	for(int i=0;i<8;i++) caraTests_h[i]=new TH1F(Form("caraTests_%i_h",i),Form("Caradonna plot at #theta_1=#theta_2=%.0f",i*5.0+75.0),bins,-180,180);
 	
 	TH3F* cara3D_h=new TH3F("cara3D_h","Caradonna 3D",180,0,180,180,0,180,180,-180,180);
-	for(int i=0; i<180; i++) {
-		pryceTest_h->SetBinContent(i+1,test_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),(i*2-180+binWidth/2)*TMath::DegToRad()));
-		pryceTest2_h->SetBinContent(i+1,test_f->Eval(thetaTest*TMath::DegToRad(),thetaTest*TMath::DegToRad(),(i*2-180+binWidth/2)*TMath::DegToRad()));
-//		caraTest_h->SetBinContent(i+1,cara_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),(i*2+binWidth/2)*TMath::DegToRad()));
-//		caraTest2_h->SetBinContent(i+1,cara_f->Eval(thetaTest*TMath::DegToRad(),thetaTest*TMath::DegToRad(),(i*2+binWidth/2)*TMath::DegToRad()));
-		caraTest_h->SetBinContent(i+1,cara_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),(i*2-180+binWidth/2)*TMath::DegToRad()));
-		caraTest2_h->SetBinContent(i+1,cara_f->Eval(thetaTest*TMath::DegToRad(),thetaTest*TMath::DegToRad(),(i*2-180+binWidth/2)*TMath::DegToRad()));
+	
+	Float_t ninety, zero;
+	for(int i=0; i<bins; i++) {
+	
+//		cout << i << " " << i+1 << " " << i*binWidth-180+binWidth/2 << " " << test_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),(i*binWidth-180+binWidth/2)*TMath::DegToRad()) << endl;
+	
+		pryceTest_h->SetBinContent(i+1,test_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),(i*binWidth-180+binWidth/2)*TMath::DegToRad()));
+		pryceTest2_h->SetBinContent(i+1,test_f->Eval(thetaTest*TMath::DegToRad(),thetaTest*TMath::DegToRad(),(i*binWidth-180+binWidth/2)*TMath::DegToRad()));
+		caraTest_h->SetBinContent(i+1,cara_f->Eval(bestTheta*TMath::DegToRad(),bestTheta*TMath::DegToRad(),(i*binWidth-180+binWidth/2)*TMath::DegToRad()));
+		caraTest2_h->SetBinContent(i+1,cara_f->Eval(thetaTest*TMath::DegToRad(),thetaTest*TMath::DegToRad(),(i*binWidth-180+binWidth/2)*TMath::DegToRad()));
+		
+		for(int i2=0;i2<8;i2++) caraTests_h[i2]->SetBinContent(i+1,cara_f->Eval((i2*5.0+75.0)*TMath::DegToRad(),(i2*5.0+75.0)*TMath::DegToRad(),(i*binWidth-180+binWidth/2)*TMath::DegToRad()));
+		
+		ninety = test_f->Eval((i+1)*binWidth/2*TMath::DegToRad(),(i+1)*binWidth/2*TMath::DegToRad(),90*TMath::DegToRad());
+		zero = test_f->Eval((i+1)*binWidth/2*TMath::DegToRad(),(i+1)*binWidth/2*TMath::DegToRad(),0*TMath::DegToRad());
+		pryceTest3_h->SetBinContent(i+1,ninety/zero);
+		
+		ninety = cara_f->Eval((i+1)*binWidth/2*TMath::DegToRad(),(i+1)*binWidth/2*TMath::DegToRad(),90*TMath::DegToRad());
+		zero = cara_f->Eval((i+1)*binWidth/2*TMath::DegToRad(),(i+1)*binWidth/2*TMath::DegToRad(),0*TMath::DegToRad());
+		caraTest3_h->SetBinContent(i+1,ninety/zero);
 		
 		for(int j=0;j<180;j++) for(int k=0;k<180;k++) cara3D_h->SetBinContent(i+1,j+1,k+1,cara_f->Eval((i*binWidth/2+binWidth/4)*TMath::DegToRad(),(j*binWidth/2+binWidth/4)*TMath::DegToRad(),(k*2-180+binWidth/2)*TMath::DegToRad()));
 		
@@ -357,14 +371,45 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	caraTest_c->cd(1);
 //	caraTest_h->SetLineColor(2);
 //	caraTest_h->SetLineStyle(3);
-	caraTest_h->Draw("");
+	caraTest_h->DrawCopy("");
 	caraTest_c->cd(2);
-	pryceTest_h->Draw("");
+	pryceTest_h->Draw("hist");
 	caraTest_c->cd(3);
 	caraTest2_h->Draw("");
 	caraTest_c->cd(4);
 	pryceTest2_h->Draw("");
+	caraTest_c->cd(5);
+	pryceTest3_h->Draw("");
+	caraTest_c->cd(6);
+	caraTest3_h->Draw("");
 	
 	TCanvas* cara3D_c=new TCanvas("cara3D","Caradonna 3D");
-	cara3D_h->Draw();
+	cara3D_h->Draw("col");
+	
+	TCanvas* caraTest2_c=new TCanvas("caraTest2_c","Caradonna Plots");
+	caraTest_h->SetStats(0);
+	caraTest_h->Draw();
+	for(int i=0;i<8;i++) {
+		caraTests_h[i]->SetLineColor(i+1);
+		caraTests_h[i]->SetStats(0);
+		caraTests_h[i]->Draw("same");
+	}
+	caraTest2_c->BuildLegend(0.55,0.55,0.9,0.9);
+	
+	
+	
+	cout << "//////////////////////////////////////////////////////////" << endl;
+	cout << "Enhancement at theta_1=theta_2=" << bestTheta << " using Caradonna (3D): "
+		<< cara_f->Eval(bestTheta*TMath::DegToRad() , bestTheta*TMath::DegToRad() , 90.*TMath::DegToRad())/test_f->Eval(bestTheta*TMath::DegToRad() , bestTheta*TMath::DegToRad(),0.*TMath::DegToRad())
+		<< endl;
+
+	cout << "Enhancement at theta_1=theta_2=" << bestTheta << " using Pryce & Ward (3D): "
+		<< test_f->Eval(bestTheta*TMath::DegToRad() , bestTheta*TMath::DegToRad() , 90.*TMath::DegToRad())/test_f->Eval(bestTheta*TMath::DegToRad() , bestTheta*TMath::DegToRad(),0.*TMath::DegToRad())
+		<< endl;
+
+	cout << "Enhancement at theta_1=theta_2=" << bestTheta << " using Pryce & Ward (2D): "
+		<< enhVsTh12_PW_f->Eval(bestTheta/180*TMath::Pi(),bestTheta/180*TMath::Pi())
+		<< endl;
+	cout << "//////////////////////////////////////////////////////////" << endl;
+	
 }
