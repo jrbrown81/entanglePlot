@@ -8,21 +8,14 @@ Double_t cos2phi(Double_t* x, Double_t* par)
 	return par[0]*TMath::Cos(2*x[0]*TMath::DegToRad())+par[1];
 }
 
-//Double_t g(Double_t* x, Double_t* par)
-//{
-//	return 2-TMath::Cos(x*TMath::DegToRad())+1/(2-TMath::Cos(x*TMath::DegToRad()));
-//}
-
-void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
+void caradonnaPlot(Double_t thetaMin=67, Double_t thetaMax=97)
 {
-
-//	gStyle->SetOptTitle(0);
+	//	gStyle->SetOptTitle(0);
 	gStyle->SetOptStat(0);
 
-//	gROOT->ProcessLine(".L ~/work/root_macros/root_macros/GetEnhancement.C");
-
-// Caradonna et al
-	TF3* cara_f=new TF3("cara_f","1./(16*pow(-2+Cos(x),3)*pow(-2+Cos(y),3))*	(9+9*pow(Cos(y),2)-3*pow(Cos(y),3)-3*pow(Cos(x),2)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))+pow(Cos(x),3)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))-4*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(-9+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))+	Cos(x)*(-9-9*pow(Cos(y),2)+3*pow(Cos(y),3)+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(9-Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))))",0,Pi(),0,Pi(),-Pi(),Pi());
+	// Caradonna et al
+	TF3* cara_f=new TF3("cara_f","1./(16*pow(-2+Cos(x),3)*pow(-2+Cos(y),3))*	(9+9*pow(Cos(y),2)-3*pow(Cos(y),3)-3*pow(Cos(x),2)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))+pow(Cos(x),3)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))-4*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(-9+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))+	Cos(x)*(-9-9*pow(Cos(y),2)+3*pow(Cos(y),3)+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(9-Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))))",0,Pi(),0,Pi(),0,2*Pi());
+//	TF3* cara_f=new TF3("cara_f","1./(16*pow(-2+Cos(x),3)*pow(-2+Cos(y),3))*	(9+9*pow(Cos(y),2)-3*pow(Cos(y),3)-3*pow(Cos(x),2)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))+pow(Cos(x),3)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))-4*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(-9+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))+	Cos(x)*(-9-9*pow(Cos(y),2)+3*pow(Cos(y),3)+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(9-Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))))",0,Pi(),0,Pi(),-Pi(),Pi());
 ////////////////////////////////////
 
 // Pryce & Ward
@@ -145,138 +138,6 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	leg4->AddEntry(cos2phi_pol,Form("Independent (enh.=%f)",enh_pol));
 	leg4->Draw();
 
-	TFile *file = new TFile("entangledCZT_hist.root");
-	TH1F* cztEnt_h=(TH1F*)file->Get("h4");
-	cztEnt_h->SetTitle("CZT Block (entangled), 67#circ<#theta<97#circ");
-//	cztEnt_h->SetTitle("QE-G4 Simulation");
-	
-	TFile *file2 = new TFile("unentangledCZT_hist.root");
-	TH1F* cztUnent_h=(TH1F*)file2->Get("h4");
-	cztUnent_h->SetTitle("CZT Block (unentangled), 67#circ<#theta<97#circ");
-//	cztUnent_h->SetTitle("G4 Simulation");
-	
-	TCanvas* c5=new TCanvas("c5","CZT Block Simulation");
-//	c5->Divide(2,2);
-//	c5->cd(1);
-//	cztEnt_h->Draw();
-	Double_t norm=cztEnt_h->Integral(-180,180);
-	Int_t nBins=cztEnt_h->GetNbinsX();
-	norm=norm/nBins;
-//	cout << norm << " " << nBins << endl;
-//	c5->cd(2);
-	TH1F* cztEntNorm_h=(TH1F*)cztEnt_h->Clone("cztEntNorm_h");
-	cztEntNorm_h->Scale(1/norm);
-	Double_t enh_cztEnt=GetEnhancement(cztEntNorm_h,"IL0Q");
-//	cztEntNorm_h->SetLineColor(1);
-	cztEntNorm_h->SetStats(0);
-		
-	norm=cztUnent_h->Integral(-180,180);
-	nBins=cztUnent_h->GetNbinsX();
-	norm=norm/nBins;
-//	cout << norm << " " << nBins << endl;
-//	c5->cd(2);
-	TH1F* cztUnentNorm_h=(TH1F*)cztUnent_h->Clone("cztUnentNorm_h");
-	cztUnentNorm_h->Scale(1/norm);
-	Double_t enh_cztUnent=GetEnhancement(cztUnentNorm_h,"IL0Q");
-	cztUnentNorm_h->SetLineColor(2);
-	cztUnentNorm_h->SetMarkerColor(2);
-	cztUnentNorm_h->SetStats(0);
-	
-	c5->cd();
-	cztEntNorm_h->SetTitle("");
-	cztEntNorm_h->SetMarkerStyle(47);
-	cztEntNorm_h->SetMarkerColor(4);
-	cztEntNorm_h->SetLineColor(4);
-	cztEntNorm_h->SetFillColor(4);
-	
-	cztEntNorm_h->GetXaxis()->SetTitle("#Delta#phi (degrees)");
-	cztEntNorm_h->GetYaxis()->SetTitle("Normalised Scattering Probability");
-	
-	cztEntNorm_h->GetXaxis()->SetLabelSize(0.05);
-	cztEntNorm_h->GetXaxis()->SetTitleSize(0.05);
-	cztEntNorm_h->GetXaxis()->SetTitleOffset(0.9);
-	cztEntNorm_h->GetYaxis()->SetLabelSize(0.05);
-	cztEntNorm_h->GetYaxis()->SetTitleSize(0.05);
-	cztEntNorm_h->GetYaxis()->SetTitleOffset(0.9);
-	
-	cztEntNorm_h->Draw("e1");
-	cztUnentNorm_h->SetMarkerStyle(23);
-	cztUnentNorm_h->SetMarkerColor(2);
-	cztUnentNorm_h->SetLineColor(2);
-	cztUnentNorm_h->SetFillColor(2);
-	cztUnentNorm_h->Draw("e1 same");
-	cos2phi_ent->Draw("same");
-	cos2phi_pol->Draw("same");
-//	TLegend* leg5 = new TLegend(0.6,0.75,0.9,0.9);
-//	TLegend* leg5 = new TLegend(0.56,0.1,0.84,0.25);
-	TLegend* leg5 = new TLegend(0.4,0.87,0.99,0.99);
-//	leg5->AddEntry(cztEntNorm_h,cztEnt_h->GetTitle());
-//	leg5->AddEntry(cztEntNorm_h,Form("QE-G4 Simulation (enh.=%.3f)",enh_cztEnt));
-//	leg5->AddEntry(cztUnentNorm_h,cztUnent_h->GetTitle());
-//	leg5->AddEntry(cztUnentNorm_h,Form("G4 Simulation (enh.=%.3f)",enh_cztUnent));
-//	leg5->AddEntry(cos2phi_ent,Form("Theoretical (Entangled) (enh.=%.3f)",enh_ent));
-//	leg5->AddEntry(cos2phi_pol,Form("Theoretical (Independent) (enh.=%.3f)",enh_pol));
-	leg5->SetNColumns(2);
-	leg5->AddEntry(cztEntNorm_h,"QE-Geant4 Simulation","ep");
-	leg5->AddEntry(cztUnentNorm_h,"Geant4 Simulation","ep");
-	leg5->AddEntry(cos2phi_ent,"Theoretical (Entangled)","l");
-	leg5->AddEntry(cos2phi_pol,"Theoretical (Independent)","l");
-	leg5->Draw();
-	
-//	c5->cd(4);
-//	cos2phi_ent->Draw("");
-//	cos2phi_pol->Draw("same");
-
-	TCanvas* c6=new TCanvas("c6","CZT Block Simulation, no errors");
-	cztEntNorm_h->Draw("hist p");
-	cztUnentNorm_h->Draw("hist p same");
-	cos2phi_ent->Draw("same");
-	cos2phi_pol->Draw("same");
-
-	TF1* enhFunc=new TF1("enhFunc","(1-[0])/(1+[0])*TMath::Cos(2*TMath::DegToRad()*x)+1",-180,180);
-	Double_t c_t[9];
-	enhFunc->SetParName(0,"enh");
-	enhFunc->SetParameter(0,enh_cztEnt);
-	cout << "Enh. from fit to CZT block simulation: " << enh_cztEnt << endl;
-	cout << "#Delta#phi	c_t" << endl;
-	for(int i=0;i<9;i++) {
-		c_t[i]=(enhFunc->Integral(i*20,(i+1)*20))/20;
-		cout << i*20+10 << "	" << c_t[i] << endl;
-	}
-	
-	cout << Form("Enh. from theory (with %.2f<theta<%.2f): %f",thetaMin,thetaMax,enh_ent) << endl;
-	cout << Form("Enh. from theory (with %.2f<theta<%.2f and %.2f<theta<%.2f): %f",thetaMin,thetaMax,180-thetaMax, 180-thetaMin,enh_ent_fold) << endl;
-	cout << "#Delta#phi	c_t" << endl;
-	for(int i=0;i<9;i++) {
-		c_t[i]=(cos2phi_ent->Integral(i*20,(i+1)*20))/20;
-		cout << i*20+10 << "	" << c_t[i] << endl;
-	}
-	
-	TCanvas* c7=new TCanvas("c7","CZT Block Simulation, error bands");
-	c7->cd();
-	
-	TH1F* cztUnentNorm2_h=(TH1F*)cztUnent_h->Clone("cztUnentNorm2_h");
-	cztUnentNorm2_h->Rebin(4);
-	
-//	cztEntNorm_h->DrawCopy("e4");
-	cztUnentNorm2_h->SetFillColor(4);
-	cztUnentNorm2_h->DrawCopy("e4");
-//	cos2phi_ent->DrawCopy("same");
-//	cos2phi_pol->DrawCopy("same");
-	TLegend* leg7 = new TLegend(0.6,0.8,0.95,0.95);
-//	leg7->AddEntry(cztEntNorm_h,cztEnt_h->GetTitle());
-//	leg7->AddEntry(cztEntNorm_h,Form("QE-G4 Simulation (enh.=%.3f)",enh_cztEnt));
-//	leg7->AddEntry(cztUnentNorm_h,cztUnent_h->GetTitle());
-//	leg7->AddEntry(cztUnentNorm_h,Form("G4 Simulation (enh.=%.3f)",enh_cztUnent));
-//	leg7->AddEntry(cos2phi_ent,Form("Theoretical (Entangled) (enh.=%.3f)",enh_ent));
-//	leg7->AddEntry(cos2phi_pol,Form("Theoretical (Independent) (enh.=%.3f)",enh_pol));
-	leg7->AddEntry(cztEntNorm_h,"QE-G4 Simulation","ep");
-	leg7->AddEntry(cztUnentNorm_h,"G4 Simulation","ep");
-	leg7->AddEntry(cos2phi_ent,"Theoretical (Entangled)","l");
-	leg7->AddEntry(cos2phi_pol,"Theoretical (Independent)","l");
-//	leg7->Draw();
-	
-	
 // Integrate enhancement function over various ranges of theta
 	cout << endl << "d_theta	min.	max.	Enh." << endl;
 	Int_t n=17;
@@ -311,20 +172,6 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	
 	Double_t enh_Pryce=(enhVsTh12_PW_f->Integral(thetaMin*TMath::DegToRad(),thetaMax*TMath::DegToRad(),thetaMin*TMath::DegToRad(),thetaMax*TMath::DegToRad()))/pow(thetaMax*TMath::DegToRad()-thetaMin*TMath::DegToRad(),2);
 	cout << Form("Enh. from Pryce & Ward (with %.2f<theta<%.2f): %f",thetaMin,thetaMax,enh_Pryce) << endl;
-
-	TCanvas* CZT_block_comp_c=new TCanvas("CZT_block_comp_c","CZT Block Simulation (Pryce & Ward)");
-	CZT_block_comp_c->cd();
-	cztEntNorm_h->Draw("e1");
-	cztUnentNorm_h->Draw("e1 same");
-
-	TF1* cos2phi_pryce=new TF1(Form("cos(2#phi) distributions for %.1f#circ<#theta<%.1f#circ",thetaMin,thetaMax),cos2phi,-180,180,2);
-	amp=(1-enh_Pryce)/(1+enh_Pryce);
-	off=1;
-	cos2phi_pryce->SetParameter(0,amp);
-	cos2phi_pryce->SetParameter(1,off);
-	cos2phi_pryce->SetLineColor(4);
-	cos2phi_pryce->GetXaxis()->SetTitle("#phi (degrees)");
-	cos2phi_pryce->Draw("same");
 	
 	TCanvas* caraTest_c=new TCanvas("caraTest_c","Caradonna Plots");
 	caraTest_c->Divide(2,3);
@@ -348,7 +195,31 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	TH1F* caraTests_h[8];
 	for(int i=0;i<8;i++) caraTests_h[i]=new TH1F(Form("caraTests_%i_h",i),Form("Caradonna plot at #theta_1=#theta_2=%.0f",i*5.0+75.0),bins,-180,180);
 	
-	TH3F* cara3D_h=new TH3F("cara3D_h","Caradonna 3D",180,0,180,180,0,180,180,-180,180);
+	TH3F* cara3D_h=new TH3F("cara3D_h","Caradonna 3D",18,0,180,18,0,180,18,0,360);
+	cara3D_h->GetXaxis()->SetTitle("theta1");
+	cara3D_h->GetYaxis()->SetTitle("theta2");
+	cara3D_h->GetZaxis()->SetTitle("phi");
+	TH3F* cara3D_cut_h=new TH3F("cara3D_cut_h","Caradonna 3D",18,75,115,18,75,115,18,0,360);
+	cara3D_cut_h->GetXaxis()->SetTitle("theta1");
+	cara3D_cut_h->GetYaxis()->SetTitle("theta2");
+	cara3D_cut_h->GetZaxis()->SetTitle("phi");
+	TH3F* cara3D_cut2_h=new TH3F("cara3D_cut2_h","Caradonna 3D",18,70,140,18,70,140,18,110,270);
+	cara3D_cut2_h->GetXaxis()->SetTitle("theta1");
+	cara3D_cut2_h->GetYaxis()->SetTitle("theta2");
+	cara3D_cut2_h->GetZaxis()->SetTitle("phi");
+	
+	TH3F* pryce3D_h=new TH3F("pryce3D_h","Pryce and Ward 3D",18,0,180,18,0,180,18,0,360);
+	pryce3D_h->GetXaxis()->SetTitle("theta1");
+	pryce3D_h->GetYaxis()->SetTitle("theta2");
+	pryce3D_h->GetZaxis()->SetTitle("phi");
+	TH3F* pryce3D_cut_h=new TH3F("pryce3D_cut_h","Pryce and Ward 3D",18,75,115,18,75,115,18,0,360);
+	pryce3D_cut_h->GetXaxis()->SetTitle("theta1");
+	pryce3D_cut_h->GetYaxis()->SetTitle("theta2");
+	pryce3D_cut_h->GetZaxis()->SetTitle("phi");
+	TH3F* pryce3D_cut2_h=new TH3F("pryce3D_cut2_h","Pryce and Ward 3D",18,70,140,18,70,140,18,110,270);
+	pryce3D_cut2_h->GetXaxis()->SetTitle("theta1");
+	pryce3D_cut2_h->GetYaxis()->SetTitle("theta2");
+	pryce3D_cut2_h->GetZaxis()->SetTitle("phi");
 	
 	Float_t ninety, zero;
 	for(int i=0; i<bins; i++) {
@@ -376,7 +247,11 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 //		bohmTest2_h->SetBinContent(i+1,
 		bohmTest3_h->SetBinContent(i+1,entangled_BA_f->Eval((i+1)*binWidth/2,(i+1)*binWidth/2));
 		
-		for(int j=0;j<180;j++) for(int k=0;k<180;k++) cara3D_h->SetBinContent(i+1,j+1,k+1,cara_f->Eval((i*binWidth/2+binWidth/4)*TMath::DegToRad(),(j*binWidth/2+binWidth/4)*TMath::DegToRad(),(k*2-180+binWidth/2)*TMath::DegToRad()));
+//		for(int j=0;j<180;j++) for(int k=0;k<180;k++) {
+//			if(i<90 && j<90 && k>0) continue;
+//			else {		 cara3D_h->SetBinContent(i+1,j+1,k+1,cara_f->Eval((i*binWidth/2+binWidth/4)*TMath::DegToRad(),(j*binWidth/2+binWidth/4)*TMath::DegToRad(),(k*2-180+binWidth/2)*TMath::DegToRad()));
+//			}
+//		}
 		
 	}
 	caraTest_c->cd(1);
@@ -394,8 +269,67 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	caraTest_c->cd(6);
 	pryceTest3_h->DrawCopy("");
 	
-	TCanvas* cara3D_c=new TCanvas("cara3D","Caradonna 3D");
-	cara3D_h->Draw("col");
+	bins=18;
+	binWidth=180/bins;
+	
+	Double_t th1, th2, phi;
+	
+	for(int i=0;i<bins;i++) for(int j=0;j<bins;j++) for(int k=0;k<bins;k++) {
+		th1=(i*binWidth+binWidth/2);
+		th2=(j*binWidth+binWidth/2);
+		phi=(k*binWidth*2+binWidth);
+//		if(th1>90 && th2>90) continue;
+//		else {
+		 cara3D_h->Fill(th1, th2, phi, cara_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
+		 pryce3D_h->Fill(th1, th2, phi, pryce_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
+//		}
+	}
+	
+	Float_t binWidth2=(115.-75.)/bins;
+	for(int i=0;i<bins;i++) for(int j=0;j<bins;j++) for(int k=0;k<bins;k++) {
+		th1=(i*binWidth2+binWidth2/2+75);
+		th2=(j*binWidth2+binWidth2/2+75);
+		phi=(k*binWidth*2+binWidth);
+		cara3D_cut_h->Fill(th1, th2, phi, 1/cara_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
+		pryce3D_cut_h->Fill(th1, th2, phi, 1/pryce_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
+	}
+	
+	binWidth2=(140.-70.)/bins;
+	Float_t binWidth3=(80.-(-80.))/bins;
+	for(int i=0;i<bins;i++) for(int j=0;j<bins;j++) for(int k=0;k<bins;k++) {
+		th1=(i*binWidth2+binWidth2/2+75);
+		th2=(j*binWidth2+binWidth2/2+75);
+		phi=(k*binWidth3+110+binWidth3/2);
+		cara3D_cut2_h->Fill(th1, th2, phi, cara_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
+		pryce3D_cut2_h->Fill(th1, th2, phi, pryce_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
+	}
+	
+	TCanvas* cara3D_c=new TCanvas("cara3D_c","Caradonna 3D");
+	cara3D_h->Draw("box2 z");
+	TCanvas* cara3D_cut_c=new TCanvas("cara3D_cut_c","Caradonna 3D (cut)");
+	cara3D_cut_h->Draw("box2 z");
+//	cara3D_cut_h->Draw("iso fb");
+	TCanvas* cara3D_cut2_c=new TCanvas("cara3D_cut2_c","Caradonna 3D (cut 2)");
+	cara3D_cut2_h->Draw("iso FB");
+	gPad->SetTheta(20);
+	gPad->SetPhi(-135);
+	
+	TCanvas* pryce3D_c=new TCanvas("pryce3D_c","Pryce and Ward 3D");
+	pryce3D_h->Draw("box2 z");
+	TCanvas* pryce3D_cut_c=new TCanvas("pryce3D_cut_c","Pryce and Ward 3D (cut)");
+	pryce3D_cut_h->Draw("box2 z");
+//	pryce3D_cut_h->Draw("iso FB");
+	TCanvas* pryce3D_cut2_c=new TCanvas("pryce3D_cut2_c","Pryce and Ward 3D (cut 2)");
+	pryce3D_cut2_h->Draw("iso FB");
+	gPad->SetTheta(20);
+	gPad->SetPhi(-135);
+	
+//	cara3D_cut2_h->Draw("box2 z");
+	//	cara3D_h->Draw("iso");
+//	cara_f->SetClippingBoxOn(90,90,0);
+//	cara_f->SetFillColor(30);
+//	cara_f->SetLineColor(15);
+//	cara_f->Draw("box");
 	
 	TCanvas* caraTest2_c=new TCanvas("caraTest2_c","Caradonna Plots");
 	caraTest_h->SetStats(0);
@@ -476,5 +410,6 @@ void entanglePlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	caraTest3_h->SetMarkerSize(0.5);
 	caraTest3_h->DrawCopy("P same");
 	enh_comp2_c->BuildLegend(0.6,0.75,0.9,0.9);
+
 
 }
