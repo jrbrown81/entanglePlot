@@ -1,3 +1,5 @@
+// skeleton code copied from caradonnaPlot.C to start constructing functions to plot Hiesmayr2019, eqn(15) etc.
+
 #include "GetEnhancement.C"
 #include "TMath.h"
 
@@ -8,12 +10,99 @@ Double_t cos2phi(Double_t* x, Double_t* par)
 	return par[0]*TMath::Cos(2*x[0]*TMath::DegToRad())+par[1];
 }
 
-void caradonnaPlot(Double_t thetaMin=67, Double_t thetaMax=97)
+void hiesmayrPlot(Float_t theta=10, Float_t theta_prime=82, Float_t phi=10)
 {
 	//	gStyle->SetOptTitle(0);
 	gStyle->SetOptStat(0);
 
-	// Caradonna et al
+// Hiesmayr and Moskal 2019, eqn. 15
+	
+	Float_t k_i=1;
+//	Float_t theta=10;
+	theta=theta/180*Pi();
+//	Float_t theta_prime=82;
+	theta_prime=theta_prime/180*Pi();
+//	Float_t phi=10;
+	phi=phi/180*Pi();
+	Float_t r_0=2.82e-15;
+	
+	TF1* cosThetaTildeA=new TF1("cosThetaTildeA","Cos([0])*Cos([1])+Cos([2]-x)*Sin([0])*Sin([1])",0,2*Pi());
+	TF1* cosThetaTildeB=new TF1("cosThetaTildeB","Cos(Pi()-[0])*Cos(Pi()-[1])+Cos([2]+Pi()-x)*Sin(Pi()-[0])*Sin(Pi()-[1])",0,2*Pi());
+	cosThetaTildeA->SetTitle("cos#Theta^{#tilde}_{A}");
+	cosThetaTildeB->SetTitle("cos#Theta^{#tilde}_{B}");
+	cosThetaTildeA->SetParameters(theta_prime,theta,phi,k_i,r_0);
+	cosThetaTildeB->SetParameters(theta_prime,theta,phi,k_i,r_0);
+	
+	TF1* k_primeA=new TF1("k_primeA","1/(1-(cosThetaTildeA(x))+1/[3])",0,2*Pi());
+	TF1* k_primeB=new TF1("k_primeB","1/(1-(cosThetaTildeB(x))+1/[3])",0,2*Pi());
+	k_primeA->SetTitle("k'_{A}");
+	k_primeB->SetTitle("k'_{B}");
+	k_primeA->SetParameters(theta_prime,theta,phi,k_i,r_0);
+	k_primeB->SetParameters(theta_prime,theta,phi,k_i,r_0);
+
+	TF1* gammaA=new TF1("gammaA","[3]/(k_primeA(x))+(k_primeA(x))/[3]",0,2*Pi());
+	TF1* gammaB=new TF1("gammaB","[3]/(k_primeB(x))+(k_primeB(x))/[3]",0,2*Pi());
+	gammaA->SetTitle("#gamma_{A}");
+	gammaB->SetTitle("#gamma_{B}");
+	gammaA->SetParameters(theta_prime,theta,phi,k_i,r_0);
+	gammaB->SetParameters(theta_prime,theta,phi,k_i,r_0);
+	
+	TF1* V_A=new TF1("V_A","(1-(cosThetaTildeA(x))^2)/((gammaA(x))+(cosThetaTildeA(x))^2-1)",0,2*Pi());
+	TF1* V_B=new TF1("V_B","(1-(cosThetaTildeB(x))^2)/((gammaB(x))+(cosThetaTildeB(x))^2-1)",0,2*Pi());
+	V_A->SetTitle("V_{A}");
+	V_B->SetTitle("V_{B}");
+	V_A->SetParameters(theta_prime,theta,phi,k_i,r_0);
+	V_B->SetParameters(theta_prime,theta,phi,k_i,r_0);
+
+	TF1* F_A=new TF1("F_A","((k_primeA(x))/[3])^2*((gammaA(x))+(cosThetaTildeA(x))^2-1)",0,2*Pi());
+	TF1* F_B=new TF1("F_B","((k_primeB(x))/[3])^2*((gammaB(x))+(cosThetaTildeB(x))^2-1)",0,2*Pi());
+	F_A->SetTitle("F_{A}");
+	F_A->SetTitle("F_{A}");
+	F_A->SetParameters(theta_prime,theta,phi,k_i,r_0);
+	F_B->SetParameters(theta_prime,theta,phi,k_i,r_0);
+
+	TF2* hies_f=new TF2("hies_f",
+		"[4]^2*(F_A(x))*(F_B(y))*(1./4)*(1-(V_A(x))*(V_B(y))*Cos(2*((x-[2])-(y-[2]))))"
+	,0,2*Pi(),0,2*Pi());
+	hies_f->SetParameters(theta_prime,theta,phi,k_i,r_0);
+	hies_f->SetParName(0,"theta");
+	hies_f->SetParName(1,"theta_prime");
+	hies_f->SetParName(2,"phi");
+	hies_f->SetParName(3,"k_i");
+	hies_f->SetParName(4,"r_0");
+
+	TCanvas* hies_c=new TCanvas("hies_c","Hiesmayr Plots");
+	hies_c->Divide(3,2);
+
+	hies_c->cd(1);
+	cosThetaTildeA->Draw();
+	cosThetaTildeA->SetLineColor(1);
+	cosThetaTildeB->Draw("same");
+
+	hies_c->cd(2);
+	k_primeA->Draw();
+	k_primeA->SetLineColor(1);
+	k_primeB->Draw("same");
+	
+	hies_c->cd(3);
+	gammaA->Draw();
+	gammaA->SetLineColor(1);
+	gammaB->Draw("same");
+	
+	hies_c->cd(4);
+	V_A->Draw();
+	V_A->SetLineColor(1);
+	V_B->Draw("same");
+
+	hies_c->cd(5);
+	F_A->Draw();
+	F_A->SetLineColor(1);
+	F_B->Draw("same");
+
+	hies_c->cd(6);
+	hies_f->Draw("colz");
+/*
+// Caradonna et al
 	TF3* cara_f=new TF3("cara_f","1./(16*pow(-2+Cos(x),3)*pow(-2+Cos(y),3))*	(9+9*pow(Cos(y),2)-3*pow(Cos(y),3)-3*pow(Cos(x),2)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))+pow(Cos(x),3)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))-4*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(-9+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))+	Cos(x)*(-9-9*pow(Cos(y),2)+3*pow(Cos(y),3)+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(9-Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))))",0,Pi(),0,Pi(),0,2*Pi());
 //	TF3* cara_f=new TF3("cara_f","1./(16*pow(-2+Cos(x),3)*pow(-2+Cos(y),3))*	(9+9*pow(Cos(y),2)-3*pow(Cos(y),3)-3*pow(Cos(x),2)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))+pow(Cos(x),3)*(-3+3*Cos(y)-3*pow(Cos(y),2)+pow(Cos(y),3))-4*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(-9+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))+	Cos(x)*(-9-9*pow(Cos(y),2)+3*pow(Cos(y),3)+2*Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2)+Cos(y)*(9-Cos(2*z)*pow(Sin(x),2)*pow(Sin(y),2))))",0,Pi(),0,Pi(),-Pi(),Pi());
 ////////////////////////////////////
@@ -272,16 +361,16 @@ void caradonnaPlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	bins=18;
 	binWidth=180/bins;
 	
-	Double_t th1, th2, phi;
+	Double_t th1, th2, ph;
 	
 	for(int i=0;i<bins;i++) for(int j=0;j<bins;j++) for(int k=0;k<bins;k++) {
 		th1=(i*binWidth+binWidth/2);
 		th2=(j*binWidth+binWidth/2);
-		phi=(k*binWidth*2+binWidth);
+		ph=(k*binWidth*2+binWidth);
 //		if(th1>90 && th2>90) continue;
 //		else {
-		 cara3D_h->Fill(th1, th2, phi, cara_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
-		 pryce3D_h->Fill(th1, th2, phi, pryce_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
+		 cara3D_h->Fill(th1, th2, ph, cara_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), ph*TMath::DegToRad()));
+		 pryce3D_h->Fill(th1, th2, ph, pryce_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), ph*TMath::DegToRad()));
 //		}
 	}
 	
@@ -289,9 +378,9 @@ void caradonnaPlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	for(int i=0;i<bins;i++) for(int j=0;j<bins;j++) for(int k=0;k<bins;k++) {
 		th1=(i*binWidth2+binWidth2/2+75);
 		th2=(j*binWidth2+binWidth2/2+75);
-		phi=(k*binWidth*2+binWidth);
-		cara3D_cut_h->Fill(th1, th2, phi, 1/cara_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
-		pryce3D_cut_h->Fill(th1, th2, phi, 1/pryce_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
+		ph=(k*binWidth*2+binWidth);
+		cara3D_cut_h->Fill(th1, th2, ph, 1/cara_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), ph*TMath::DegToRad()));
+		pryce3D_cut_h->Fill(th1, th2, ph, 1/pryce_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), ph*TMath::DegToRad()));
 	}
 	
 	binWidth2=(140.-70.)/bins;
@@ -299,9 +388,9 @@ void caradonnaPlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	for(int i=0;i<bins;i++) for(int j=0;j<bins;j++) for(int k=0;k<bins;k++) {
 		th1=(i*binWidth2+binWidth2/2+75);
 		th2=(j*binWidth2+binWidth2/2+75);
-		phi=(k*binWidth3+110+binWidth3/2);
-		cara3D_cut2_h->Fill(th1, th2, phi, cara_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
-		pryce3D_cut2_h->Fill(th1, th2, phi, pryce_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), phi*TMath::DegToRad()));
+		ph=(k*binWidth3+110+binWidth3/2);
+		cara3D_cut2_h->Fill(th1, th2, ph, cara_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), ph*TMath::DegToRad()));
+		pryce3D_cut2_h->Fill(th1, th2, ph, pryce_f->Eval( th1*TMath::DegToRad(), th2*TMath::DegToRad(), ph*TMath::DegToRad()));
 	}
 	
 	TCanvas* cara3D_c=new TCanvas("cara3D_c","Caradonna 3D");
@@ -410,6 +499,5 @@ void caradonnaPlot(Double_t thetaMin=67, Double_t thetaMax=97)
 	caraTest3_h->SetMarkerSize(0.5);
 	caraTest3_h->DrawCopy("P same");
 	enh_comp2_c->BuildLegend(0.6,0.75,0.9,0.9);
-
-
+*/
 }
